@@ -10,6 +10,7 @@ from flask import render_template, request, redirect, url_for, flash, session, a
 from werkzeug.utils import secure_filename
 from app.forms import UploadForm
 from flask.helpers import send_from_directory
+import os
 
 ###
 # Routing for your application.
@@ -27,7 +28,7 @@ def about():
     return render_template('about.html', name="Mary Jane")
 
 
-@app.route('/upload', methods=['POST', 'GET'])
+@app.route('/uploads', methods=['POST', 'GET'])
 def upload():
     if not session.get('logged_in'):
         abort(401)
@@ -45,8 +46,31 @@ def upload():
         photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         flash('File Saved', 'success')
     return redirect(url_for('home'))
-   
-    
+
+
+
+def get_uploaded_images():
+    imagelocation =[]
+    rootdir = os.getcwd()    
+    for subdir, dirs, files in os.walk(rootdir + '\\uploads\\'):
+        for file in files:
+            if ".jpg" in file or ".png" in file:
+                imagelocation.append(file)
+    return imagelocation
+
+@app.route('/uploads/<filename>')
+def get_image(filename):
+    root_dir = os.getcwd()
+    return send_from_directory(os.path.join(root_dir,app.config['UPLOAD_FOLDER']), filename)
+
+@app.route('/files', methods = ['POST', 'GET'])
+def files():
+
+    if not session.get('logged_in'):
+        abort(401)
+    images=get_uploaded_images()
+    if request.method =='GET':
+        return render_template('files.html', images= images)
 
 
 @app.route('/login', methods=['POST', 'GET'])
