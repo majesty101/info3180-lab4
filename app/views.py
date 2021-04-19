@@ -41,7 +41,7 @@ def upload():
     # Validate file upload on submit
 
     if request.method == 'POST' and uploadForm.validate_on_submit():
-            photo = request.files['image']
+            photo = request.files['photo']
             filename = secure_filename(photo.filename)
 
         # Get file data and save to your uploads folder
